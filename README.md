@@ -8,7 +8,19 @@ recruitment-system/
 
 ## How to run (two terminals)
 
-You need **JDK 17+** and **Node.js 18+** (check with `java -version` and `node -v`).
+You need **JDK 17+**, **Node.js 18+** and **MySQL 8** (check with `java -version`, `node -v`, `mysql --version`).
+
+### 0. Database (MySQL)
+The backend connects to `localhost:3306` as `root` / `password` and creates the `recruitment_db` database and tables on first start.
+To use other credentials, edit `backend/src/main/resources/application.properties` or set environment variables:
+
+```powershell
+$env:DB_USERNAME="root"; $env:DB_PASSWORD="your-password"
+# optional: $env:DB_URL="jdbc:mysql://host:3306/recruitment_db?createDatabaseIfNotExist=true"
+```
+
+No MySQL installed? Run with the built-in H2 database instead: `mvn spring-boot:run -Dspring-boot.run.profiles=h2`
+(in IntelliJ: set *Active profiles* to `h2` in the run configuration).
 
 ### 1. Backend (port 8080)
 - **IntelliJ:** File → Open → `backend` folder → wait for Maven → run `RecruitmentApplication`.
@@ -100,5 +112,6 @@ and the backend console prints a `[NOTIFY]` line from the second observer.
 ## Troubleshooting
 - **"Cannot reach the server"** in the UI → the backend isn't running on 8080.
 - **Port in use** → backend: add `server.port=8081` to `application.properties` and change the proxy target in `frontend/vite.config.js`.
-- **Reset data** → stop the backend and delete `backend/data/`.
-- **Use MySQL** → swap the datasource block in `backend/src/main/resources/application.properties`.
+- **`Communications link failure`** on startup → MySQL isn't running on port 3306.
+- **`Access denied for user 'root'`** → set `DB_USERNAME` / `DB_PASSWORD` (see step 0).
+- **Reset data** → MySQL: `DROP DATABASE recruitment_db;` then restart. H2 profile: stop the backend and delete `backend/data/`.
